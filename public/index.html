@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Report Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Transaction Report Generator</h1>
+        <form id="transactionForm">
+            <label for="address">Enter Address:</label>
+            <input type="text" id="address" name="address" required pattern="[a-zA-Z0-9]+" title="Please enter a valid address">
+            <button type="submit">Generate</button>
+        </form>
+        <p id="error-message" style="color: red;"></p>
+        <p id="loading-message" style="display: none;">Generating report, please wait...</p>
+    </div>
+
+    <script>
+        document.getElementById('transactionForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from being submitted automatically
+
+            var address = document.getElementById('address').value;
+
+            // Display loading message
+            document.getElementById('loading-message').style.display = 'block';
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ address: address })
+            })
+            .then(response => {
+                // Hide loading message
+                document.getElementById('loading-message').style.display = 'none';
+
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Network response was not ok');
+            })
+            .then(blob => {
+                // Download the generated file
+                var url = window.URL.createObjectURL(blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'transactions.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                document.getElementById('error-message').textContent = 'Error: Unable to generate transaction report';
+            });
+        });
+    </script>
+</body>
+</html>
