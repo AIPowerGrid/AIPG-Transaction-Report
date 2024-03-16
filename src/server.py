@@ -96,4 +96,4 @@ if __name__ == "__main__":
 
     asyncio.run(main())
 
-    save_to_csv(transactions, "./public/transactions.csv")
+    save_to_csv(transactions, "./public/AIPG-transactions.csv")

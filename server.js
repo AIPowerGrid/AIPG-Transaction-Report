@@ -40,7 +40,7 @@ app.post('/generate', (req, res) => {
         console.log(`child process exited with code ${code}`);
         if (code === 0) {
             // Check if the file exists, then send it for download
-            const filePath = './public/transactions.csv';
+            const filePath = './public/AIPG-transactions.csv';
             if (fs.existsSync(filePath)) {
                 console.log("Sending generated file for download");
                 res.download(filePath);
