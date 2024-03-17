@@ -9,7 +9,7 @@ import sys
 import os
 
 port = 50001
-host = '10.168.124.26'
+host = 'localhost'
 
 def get_script_hash(addr):
     decoded_address = base58.b58decode_check(addr)
