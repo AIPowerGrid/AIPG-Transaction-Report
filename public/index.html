@@ -11,7 +11,7 @@
         <h1>Transaction Report Generator</h1>
         <form id="transactionForm">
             <label for="address">Enter Address:</label>
-            <input type="text" id="address" name="address" required pattern="[a-zA-Z0-9]+" title="Please enter a valid address">
+            <input type="text" id="address" name="address" required pattern="A[A-Za-z0-9]{33}" title="Please enter a valid address">
             <button type="submit">Generate</button>
         </form>
         <p id="error-message" style="color: red;"></p>

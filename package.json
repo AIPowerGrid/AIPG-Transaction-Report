@@ -5,9 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon",
-    "dev": "nodemon --ext js,mjs,cjs,json",
+    "install": "npm run install-python",
+    "install-python": "python3 -m venv venv && source venv/bin/activate && pip install -r requirements.txt",
+    "dev": "nodemon --ext js,mjs,cjs,json server.js",
     "deploy": "gh-pages -d public"
-  },
+}
   "author": "",
   "license": "MIT",
   "dependencies": {
