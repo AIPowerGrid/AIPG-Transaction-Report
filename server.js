@@ -18,8 +18,8 @@ const options = {
 // Create HTTPS server using the configured options
 const server = https.createServer(options, app);
 
-// Set a timeout of 5 minutes (300,000 milliseconds)
-server.setTimeout(300000); // 5 minutes in milliseconds
+// Set a timeout of 15 minutes (800,000 milliseconds)
+server.setTimeout(900000); // 15 minutes in milliseconds
 
 // Handle the timeout event
 server.on('timeout', (socket) => {
