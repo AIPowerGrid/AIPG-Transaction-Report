@@ -18,6 +18,15 @@ const options = {
 // Create HTTPS server using the configured options
 const server = https.createServer(options, app);
 
+// Set a timeout of 5 minutes (300,000 milliseconds)
+server.setTimeout(300000); // 5 minutes in milliseconds
+
+// Handle the timeout event
+server.on('timeout', (socket) => {
+    console.log('Timeout has occurred on socket:', socket);
+    // Here you can close the connection or perform other necessary actions
+});
+
 app.use(express.static('public'));
 app.use(express.json())
 
@@ -39,7 +48,6 @@ app.post('/generate', (req, res) => {
     pythonProcess.on('close', (code) => {
         console.log(`child process exited with code ${code}`);
         if (code === 0) {
-            // Check if the file exists, then send it for download
             const filePath = './public/AIPG-transactions.csv';
             if (fs.existsSync(filePath)) {
                 console.log("Sending generated file for download");
