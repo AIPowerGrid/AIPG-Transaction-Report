@@ -1,9 +1,11 @@
+/* Styles for body, form, text input, button, and note */
 body {
-    font-family: Arial, sans-serif;
+    background-color: #1e1e1e;
+    color: #ffffff;
 }
 
 .container {
-    max-width: 600px;
+    max-width: 800px; /* Double the width */
     margin: 0 auto;
     text-align: center;
 }
@@ -12,13 +14,20 @@ form {
     margin-bottom: 20px;
 }
 
-label {
-    font-weight: bold;
+h1 {
+    margin-bottom: 50px; /* Increased margin below h1 */
 }
 
 input[type="text"] {
     padding: 8px;
     margin-right: 10px;
+    width: 100%; /* Double the width */
+    height: 40px; 
+    background-color: #333333;
+    color: #ffffff;
+    border: 1px solid #555555;
+    border-radius: 5px;
+    box-sizing: border-box;
 }
 
 button {
@@ -27,8 +36,70 @@ button {
     color: white;
     border: none;
     cursor: pointer;
+    margin-top: 20px; /* Increased top margin for the button */
 }
 
 button:hover {
     background-color: #0056b3;
+}
+
+.note {
+    font-size: 20px;
+    font-weight: bold;
+    color: #999999;
+}
+
+/* Styles for the footer */
+footer {
+    background-color: #333333;
+    color: #ffffff;
+    padding: 20px 0;
+    text-align: center;
+    position: fixed; /* Fixes the position of the footer */
+    left: 0;
+    bottom: 0;
+    width: 100%; /* Full width */
+}
+
+.footer {
+    max-width: 800px; /* Adjust the width of the footer as needed */
+    margin: 0 auto;
+}
+
+.footer div {
+    font-size: 16px;
+}
+
+.footer a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-right: 5px;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Styles for the QR container and donation message */
+#qr-code {
+    margin-top: 30px; /* Adjusts the space between the button and the QR code */
+    /* Add additional styles as needed */
+}
+
+.donation-message {
+    margin-top: 10px; /* Adjusts the space between the QR code and the donation message */
+    text-align: center; /* Centers the text */
+}
+
+.donation-address {
+    display: block; /* Makes the address on a separate line */
+    margin-top: 10px; /* Adjusts the space between the message and the address */
+    text-align: center; /* Centers the address */
+}
+
+.logo {
+    display: block;
+    margin: 0 auto;
+    max-width: 300px;
+    height: auto;
 }
