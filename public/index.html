@@ -6,18 +6,49 @@
     <title>AIPG Transaction Report Generator</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* Warning message styles */
+        #warning-message {
+            background-color: yellow;
+            color: red;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-align: center;
+            border: 2px solid red;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <img src="images/name-logo.png" class="logo">
         <h1>AIPG Transaction Report Generator</h1>
+
+        <!-- Warning message -->
+        <div id="warning-message">
+            Some addresses with many transactions may take up to 10 minutes to generate the report. Speed of Generation: 31.7K transactions/min approx.
+        </div>
+
         <form id="transactionForm">
-            <p class="note">Please input your AIPG address, then click Generate to download your transaction history as a CSV file.</p>
+            <p class="note">Please input your AIPG address, then click Generate to start processing your transaction history. You will be notified when the report is ready.</p>
             <input type="text" id="address" name="address" required pattern="A[A-Za-z0-9]{33}" placeholder="AKmrLSyMosfNxiXXXXXXXXXXXXXXXXXXXX" title="Please enter a valid address">
             <button type="submit">Generate</button>
         </form>
         <p id="error-message" style="color: red;"></p>
-        <p id="loading-message" style="display: none;">Generating report, please wait...</p>
+
+        <!-- Spinner Loading Message -->
+        <div id="loading-spinner" style="display: none;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+            <p>Generating report, please wait...</p>
+        </div>
+
+        <p id="status-message"></p>
         <div id="qr-code">
             <img class="qrcode" src="https://explorer.aipowergrid.io/qr/ANBZh7D1k8Kix8CAbQvCyoGxXvXPRoxfzt">
         </div>
@@ -29,18 +60,30 @@
         <div class="footer">
             <span> © MIT 2024 </span> - <span>Built by AI Power Grid</span><br>
             <a href="https://twitter.com/AIPowerGrid" target="_blank" rel="noopener noreferrer"><i class="fab fa-twitter"></i></a> -
-            <a href="https://github.com/AIPowerGrid/AIPG-Web-Wallet" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a> -
-            <a href="https://discord.gg/vZ9XrTSRYr" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i></a> -
+            <a href="https://github.com/AIPowerGrid" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i></a> -
+            <a href="https://discord.com/invite/fkYJRRU8yb" target="_blank" rel="noopener noreferrer"><i class="fab fa-discord"></i></a> -
             <a href="https://medium.com/aipg-guides" target="_blank" rel="noopener noreferrer"><i class="fab fa-medium"></i></a>
             <span id="version" class="ptr" onclick="MPW.renderChangelog();"></span>
         </div>
     </footer>
 
     <script>
+        // Hide the warning message after 5 seconds
+        setTimeout(() => {
+            const warningMessage = document.getElementById('warning-message');
+            if (warningMessage) {
+                warningMessage.style.display = 'none';
+            }
+        }, 5000);
+
         document.getElementById('transactionForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            var address = document.getElementById('address').value;
-            document.getElementById('loading-message').style.display = 'block';
+            const address = document.getElementById('address').value;
+            document.getElementById('loading-spinner').style.display = 'block';
+            document.getElementById('status-message').textContent = '';
+            document.getElementById('error-message').textContent = '';
+
+            // Start report generation
             fetch('/generate', {
                 method: 'POST',
                 headers: {
@@ -48,29 +91,58 @@
                 },
                 body: JSON.stringify({ address: address })
             })
-            .then(response => {
-                document.getElementById('loading-message').style.display = 'none';
-                if (response.ok) {
-                    return response.blob();
+            .then(response => response.json())
+            .then(data => {
+                if (data.job_id) {
+                    // Poll for job status
+                    checkStatus(data.job_id);
+                } else {
+                    throw new Error('Invalid response');
                 }
-                throw new Error('Network response was not ok');
-            })
-            .then(blob => {
-                var url = window.URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                const currentDate = new Date();
-                const timestamp = `${currentDate.getFullYear()}${(currentDate.getMonth() + 1).toString().padStart(2, '0')}${currentDate.getDate().toString().padStart(2, '0')}_${currentDate.getHours().toString().padStart(2, '0')}${currentDate.getMinutes().toString().padStart(2, '0')}`;
-                a.download = `AIPG-transactions_${timestamp}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(url);
             })
             .catch(error => {
                 console.error('There was a problem with the fetch operation:', error);
-                document.getElementById('error-message').textContent = 'Error: Unable to generate transaction report';
+                document.getElementById('loading-spinner').style.display = 'none';
+                document.getElementById('error-message').textContent = 'Error: Unable to start report generation';
             });
         });
+
+        function checkStatus(job_id) {
+            fetch(`/status/${job_id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'completed') {
+                    const fileName = 'AIPG-transactions.csv'; // You may want to make this dynamic
+                    const filePath = `/AIPG-transactions.csv`; // This should be the relative path from the public directory
+                    const a = document.createElement('a');
+                    a.href = filePath; // Set the href to the path where the file is served
+                    const currentDate = new Date();
+                    const timestamp = `${currentDate.getFullYear()}${(currentDate.getMonth() + 1).toString().padStart(2, '0')}${currentDate.getDate().toString().padStart(2, '0')}_${currentDate.getHours().toString().padStart(2, '0')}${currentDate.getMinutes().toString().padStart(2, '0')}${currentDate.getSeconds().toString().padStart(2, '0')}`;
+                    a.download = `AIPG-transactions_${timestamp}.csv`;
+                    a.click();
+
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    document.getElementById('status-message').textContent = 'Your report is ready!';
+                } else if (data.status === 'failed') {
+                    document.getElementById('loading-spinner').style.display = 'none';
+                    document.getElementById('error-message').textContent = 'Error: Unable to generate transaction report';
+                } else {
+                    // Retry after a delay
+                    setTimeout(() => checkStatus(job_id), 5000); // Check every 5 seconds
+                }
+            })
+            .catch(error => {
+                console.error('There was a problem with the fetch operation:', error);
+                document.getElementById('loading-spinner').style.display = 'none';
+                document.getElementById('error-message').textContent = 'Error: Unable to check report status';
+            });
+        }
     </script>
 </body>
 </html>
+
+
+
+
+
+

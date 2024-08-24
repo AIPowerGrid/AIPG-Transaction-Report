@@ -26,7 +26,7 @@ npm run dev
 ```
 2. Open your web browser and navigate to:
 ```bash
-http://localhost:8743
+http://localhost:8443
 ```
 3. Enter the desired address and click the "Generate" button to generate a transaction report.
 
@@ -36,7 +36,8 @@ http://localhost:8743
 
 - Express.js: "^4.17.1"
 - nodemon: "^3.1.0"
-- gh-pages: "^3.2.3"
+- gh-pages: "^6.1.1"
+- redis: "4.7.0"
 
 ## License
 
